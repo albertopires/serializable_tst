@@ -1,0 +1,7 @@
+*.out
+*.o
+*.ser
+*.swp
+core*
+read_val
+store_val
