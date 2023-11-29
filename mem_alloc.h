@@ -1,7 +1,7 @@
 // Copyright (C) 2023 Alberto pires de Oliveira Neto
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at https://github.com/albertopires/serializable_tst/blob/main/LICENSE
+// See file LICENSE for detail or copy at https://github.com/albertopires/serializable_tst/blob/master/LICENSE
 
 #ifndef MEM_ALLOC_H_
 #define MEM_ALLOC_H_

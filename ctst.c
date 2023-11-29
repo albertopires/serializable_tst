@@ -1,7 +1,7 @@
 // Copyright (C) 2023 Alberto pires de Oliveira Neto
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at https://github.com/albertopires/serializable_tst/blob/main/LICENSE
+// See file LICENSE for detail or copy at https://github.com/albertopires/serializable_tst/blob/master/LICENSE
 
 #include "ctst.h"
 
@@ -154,19 +154,20 @@ static void deserialize_file(NODE **root, FILE *fp)
 		deserialize_file(&((*root)->mid), fp);
 	}
 }
-void deserialize(NODE **root, const char *file_name)
+int deserialize(NODE **root, const char *file_name)
 {
 	FILE *fp;
 
 	fp = fopen(file_name, "rb");
 	if (fp == NULL) {
 		perror("fopen - dserialize");
-		exit(1);
+		return CTST_ERROR;
 	}
 
 	deserialize_file(root, fp);
 
 	fclose(fp);
+	return CTST_OK;
 }
 
 void traverse(NODE *root)

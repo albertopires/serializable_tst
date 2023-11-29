@@ -1,7 +1,7 @@
 // Copyright (C) 2023 Alberto pires de Oliveira Neto
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at https://github.com/albertopires/serializable_tst/blob/main/LICENSE
+// See file LICENSE for detail or copy at https://github.com/albertopires/serializable_tst/blob/master/LICENSE
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -22,7 +22,10 @@ int main(int argc, char *argv[])
 	}
 
 	root = NULL;
-	deserialize(&root, argv[1]);
+	if (deserialize(&root, argv[1])) {
+		printf("Cannot open serialized file\n");
+		exit(1);
+	}
 
 	printf("Traverse\n");
 	traverse_data_nodes(root, tst_handler, NULL);
