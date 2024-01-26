@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <sys/types.h>
 
 #include "mem_alloc.h"
@@ -26,13 +27,13 @@ typedef struct node_st {
 
 typedef void (PROC_HANDLER)(const char*, int, NODE*, void *); // (buff, strlen(found key), node, param)
 
-NODE *create_node(void);
+void print_node_count(void);
 NODE *tst_put(NODE **root, const char *str);
 NODE *tst_put_max(NODE **root, const char *str, int ks);
 NODE *tst_get(NODE **root, const char *str);
 void serialize(NODE *root, const char *file_name);
-void traverse(NODE *root);
-void traverse_data_nodes(NODE *root, PROC_HANDLER proc_handler, void *param);
+void delete_tree(NODE **node);
+void traverse_nodes(NODE *root, PROC_HANDLER proc_handler, void *param, bool data);
 void debug(NODE *root);
 int deserialize(NODE **root, const char *file_name);
 

@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 	show_node_data(root, "perl");
 
 	printf("Traverse\n");
-	traverse_data_nodes(root, tst_handler, NULL);
+	traverse_nodes(root, tst_handler, NULL, true);
 
 	serialize(root, "data.ser");
 
@@ -67,7 +67,7 @@ void find_node_and_add(NODE *root, const char *key, const char *str)
 	if (node) {
 		if (!node->data.buffer) {
 			allocate_buffer(&node->data, 500);
-			node->data.buf_size = sprintf(node->data.buffer, "%s", str);
+			node->data.buf_size = snprintf(node->data.buffer, 499, "%s", str);
 		}
 	} else {
 		printf("Node <%s> not found\n", key);

@@ -8,17 +8,37 @@
 static char MARKER = 0x1;
 static char ENDSTR = 0x2;
 static char DATAMK = 0x3;
+static int node_count = 0;
 
-NODE *create_node(void)
+void print_node_count(void)
+{
+	printf("Node count: %d\n", node_count);
+}
+
+static bool is_leaf_node(NODE *node)
+{
+	return !(node->left) && !(node->mid) && !(node->right);
+}
+
+static NODE *create_node(void)
 {
 	struct node_st *node;
 	node = (struct node_st*) malloc(sizeof(struct node_st));
 	if (node) {
+		node_count++;
 		memset(node, 0, sizeof(NODE));
 		return node;
 	}
 	printf("failed to allocate node\n");
 	exit(1);
+}
+
+static void delete_leaf_node(NODE *node)
+{
+	if (!is_leaf_node(node)) abort();
+	node_count--;
+	if (node->data.buffer) free_buffer(&node->data);
+	free(node);
 }
 
 static NODE *tst_put_r(NODE **node, const char *str, int d, int l)
@@ -139,6 +159,7 @@ static void deserialize_file(NODE **root, FILE *fp)
 				fscanf(fp, "%x ", &ic);
 				allocate_buffer(&(*root)->data, ic+1);
 				(*root)->data.buf_size = ic;
+				(*root)->data.buffer[ic] = 0;
 				fread((*root)->data.buffer, ic, sizeof(char), fp);
 				next = fpeek(fp);
 			}
@@ -170,36 +191,45 @@ int deserialize(NODE **root, const char *file_name)
 	return CTST_OK;
 }
 
-void traverse(NODE *root)
+void delete_tree(NODE **node)
 {
-	if (root == NULL) return;
-	printf("%c L:%c, R:%c\n", root->c,
-			root->left  == NULL ? 'N' : root->left->c,
-			root->right == NULL ? 'N' : root->right->c);
-	traverse(root->left);
-	traverse(root->mid);
-	traverse(root->right);
-}
-
-static void traverse_data_nodes_r(NODE *node, PROC_HANDLER proc_handler, void *param, char *buf, int i)
-{
-	if (node) {
-		traverse_data_nodes_r(node->left, proc_handler, param, buf, i);
-
-		buf[i] = node->c;
-		if (node->data.buffer) proc_handler(buf, i+1, node, param);
-
-		traverse_data_nodes_r(node->mid, proc_handler, param, buf, i+1);
-		traverse_data_nodes_r(node->right, proc_handler, param, buf, i);
+	if (*node == NULL) return;
+	delete_tree(&(*node)->left);
+	delete_tree(&(*node)->mid);
+	delete_tree(&(*node)->right);
+	if (is_leaf_node(*node)) {
+		delete_leaf_node(*node);
+		*node = NULL;
+		return;
 	}
 }
 
-void traverse_data_nodes(NODE *root, PROC_HANDLER proc_handler, void *param)
+static void traverse_nodes_r(NODE *node, PROC_HANDLER proc_handler, void *param, bool data, char *buf, int i)
+{
+	if (node) {
+		traverse_nodes_r(node->left, proc_handler, param, data, buf, i);
+
+		buf[i] = node->c;
+		if (data && node->data.buffer) {
+			// Call proc_handler only on data nodes
+			proc_handler(buf, i+1, node, param);
+		} else if (!data && is_leaf_node(node)) {
+			proc_handler(buf, i+1, node, param);
+		}
+
+		traverse_nodes_r(node->mid, proc_handler, param, data, buf, i+1);
+		traverse_nodes_r(node->right, proc_handler, param, data, buf, i);
+	}
+}
+
+// data: true  - call handler only data leaf nodes
+//       false - call handler on all leaf nodes
+void traverse_nodes(NODE *root, PROC_HANDLER proc_handler, void *param, bool data)
 {
 	char buffer[512];
 
 	memset(buffer, 0, sizeof(buffer));
-	traverse_data_nodes_r(root, proc_handler, param, buffer, 0);
+	traverse_nodes_r(root, proc_handler, param, data, buffer, 0);
 }
 
 void debug(NODE *root)

@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -std=c17
+CFLAGS=-g -std=c17 -Wall
 
 all: store_val read_val
 

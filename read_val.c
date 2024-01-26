@@ -28,7 +28,8 @@ int main(int argc, char *argv[])
 	}
 
 	printf("Traverse\n");
-	traverse_data_nodes(root, tst_handler, NULL);
+	traverse_nodes(root, tst_handler, NULL, true);
+	print_node_count();
 	printf("------------------------\n");
 
 	printf("Search: <%s>\n", argv[2]);
@@ -48,12 +49,18 @@ int main(int argc, char *argv[])
                 }
         }
 
+	printf("Delete tree\n");
+	delete_tree(&root);
+	print_node_count();
 
 	exit(0);
 }
+
 void tst_handler(const char *key, int key_len, NODE* node, void *param)
 {
         char print_key[key_len+1];
+
+	if (node->data.buffer == NULL) return;
         strncpy(print_key, key, key_len);
         print_key[key_len] = 0;
         printf("-> Key: <%s>/%d, data: %s\n", print_key, key_len, node->data.buffer);
